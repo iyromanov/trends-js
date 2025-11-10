@@ -1,16 +1,20 @@
 A TypeScript library for interacting with the Google Trends API. This package provides a simple and type-safe way to access Google Trends data programmatically.
 
+## About This Fork
+
+This is a fork of [@shaivpidadi/trends-js](https://github.com/Shaivpidadi/trends-js) maintained by @iyromanov.
+
 ## Showcase
 
-### EliteTimesNews.com — Built with `@shaivpidadi/trends-js`
-**URL:** https://elitetimesnews.com  
-**What it uses:** `dailyTrends()` (US, en) to power the home page “Daily Trending” rail, refreshed on a schedule.
+### EliteTimesNews.com — Built with the original `@shaivpidadi/trends-js`
+**URL:** https://elitetimesnews.com
+**What it uses:** `dailyTrends()` (US, en) to power the home page "Daily Trending" rail, refreshed on a schedule.
 
 
 ## Installation
 
 ```bash
-npm install @shaivpidadi/trends-js
+npm install @iyromanov/trends-js
 ```
 
 ## Features
@@ -31,7 +35,7 @@ npm install @shaivpidadi/trends-js
 ### Importing
 
 ```typescript
-import GoogleTrendsApi from '@shaivpidadi/trends-js';
+import GoogleTrendsApi from '@iyromanov/trends-js';
 ```
 
 ### Daily Trends
@@ -344,6 +348,58 @@ interface RelatedData {
 
 ### Building
 
+```bash
+npm run build
 ```
 
+### Testing
+
+```bash
+npm test
+```
+
+## Publishing
+
+This package uses automated versioning and publishing through GitHub Actions.
+
+### How to Release a New Version
+
+1. Go to the **Actions** tab in your GitHub repository
+2. Select the **Release** workflow
+3. Click **Run workflow**
+4. Choose the version bump type:
+   - **patch**: Bug fixes (1.0.0 → 1.0.1)
+   - **minor**: New features (1.0.0 → 1.1.0)
+   - **major**: Breaking changes (1.0.0 → 2.0.0)
+5. The workflow will:
+   - Run tests
+   - Bump the version in package.json
+   - Create a git tag
+   - Push the changes and tag
+6. The **Publish Package** workflow will automatically trigger on the new tag and publish to npm
+
+### Prerequisites for Publishing
+
+Before you can publish, you need to:
+
+1. **Create an npm account** at https://www.npmjs.com/signup
+2. **Generate an npm access token**:
+   - Log in to npm
+   - Go to your profile → Access Tokens
+   - Generate a new token with "Automation" type
+3. **Add the token to GitHub Secrets**:
+   - Go to your repository Settings → Secrets and variables → Actions
+   - Create a new secret named `NPM_TOKEN`
+   - Paste your npm token as the value
+4. **Configure npm scope** (one-time setup):
+   - Make sure you have access to publish under the `@iyromanov` scope on npm
+
+### Manual Publishing (Alternative)
+
+You can also publish manually:
+
+```bash
+npm version patch  # or minor, or major
+git push origin main --tags
+npm publish --access public
 ```
