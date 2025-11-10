@@ -3,10 +3,10 @@ import { ParseError } from '../errors/GoogleTrendsError.js';
 
 // For future refrence and update: from google trends page rpc call response,
 // 0	"twitter down"	The main trending search term.
-// 1	null	Unused (reserved for future Google Trends data).
+// 1	null OR [newsUrl, source, imageUrl, [articles...]]	Image/article data (often null in current API responses).
 // 2	"US"	Country code (where the trend is happening).
-// 3	[1741599600]	Unix timestamp (represents when the search started trending).
-// 4	null	Unused (reserved for future data).
+// 3	[1741599600]	Unix timestamp array - first element is when the trend started.
+// 4	null OR [1741602000]	Unix timestamp array - trend end time (if available).
 // 5	null	Unused (reserved for future data).
 // 6	500000	Search volume index (estimated search interest for the term).
 // 7	null	Unused (reserved for future data).
@@ -54,20 +54,35 @@ const updateResponseObject = (data: unknown[]): DailyTrendingTopics => {
 
   data.forEach((item: unknown) => {
     if (Array.isArray(item)) {
-      const story: TrendingStory = {
-        title: String(item[0] || ''),
-        traffic: String(item[6] || '0'),
-        articles: Array.isArray(item[9]) ? item[9].map((article: any) => ({
+      let articles: any[] = [];
+      if (item[1] && Array.isArray(item[1]) && item[1].length > 3 && Array.isArray(item[1][3])) {
+        articles = item[1][3].filter((article: any) => Array.isArray(article) && article.length >= 5).map((article: any) => ({
           title: String(article[0] || ''),
           url: String(article[1] || ''),
           source: String(article[2] || ''),
           time: String(article[3] || ''),
           snippet: String(article[4] || '')
-        })) : [],
-        shareUrl: String(item[12] || '')
+        }));
+      }
+
+      const startTime = (Array.isArray(item[3]) && item[3].length > 0 && typeof item[3][0] === 'number')
+        ? item[3][0]
+        : 0;
+
+      const endTime = (Array.isArray(item[4]) && item[4].length > 0 && typeof item[4][0] === 'number')
+        ? item[4][0]
+        : undefined;
+
+      const story: TrendingStory = {
+        title: String(item[0] || ''),
+        traffic: String(item[6] || '0'),
+        articles: articles,
+        shareUrl: String(item[12] || ''),
+        startTime,
+        ...(endTime && { endTime })
       };
 
-      if (item[1]) {
+      if (item[1] && Array.isArray(item[1]) && item[1].length >= 3) {
         story.image = {
           newsUrl: String(item[1][0] || ''),
           source: String(item[1][1] || ''),
@@ -79,7 +94,9 @@ const updateResponseObject = (data: unknown[]): DailyTrendingTopics => {
       summary.push({
         title: story.title,
         traffic: story.traffic,
-        articles: story.articles
+        articles: story.articles,
+        startTime,
+        ...(endTime && { endTime })
       });
     }
   });
