@@ -1,6 +1,6 @@
 {
   "name": "@iyromanov/trends-js",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Google Trends API for Node.js (Fork of @shaivpidadi/trends-js)",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
